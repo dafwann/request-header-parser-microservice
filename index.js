@@ -1,30 +1,31 @@
-// index.js
-// where your node app starts
+const express = require('express');
+const app = express();
 
-// init project
-require('dotenv').config();
-var express = require('express');
-var app = express();
-
-// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC
-var cors = require('cors');
-app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 204
-
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
-
-// http://expressjs.com/en/starter/basic-routing.html
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
+// Root route
+app.get('/', (req, res) => {
+  res.send('<h1>Header Parser Microservice</h1><p>Gunakan <code>/api/whoami</code> untuk melihat informasi Anda.</p>');
 });
 
-// your first API endpoint...
-app.get('/api/hello', function (req, res) {
-  res.json({ greeting: 'hello API' });
+// API endpoint /api/whoami
+app.get('/api/whoami', (req, res) => {
+  // IP address (x-forwarded-for untuk deploy di Replit/Heroku)
+  const ipaddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+  // Preferred language
+  const language = req.headers['accept-language'];
+
+  // Software / User-Agent
+  const software = req.headers['user-agent'];
+
+  res.json({
+    ipaddress: ipaddress,
+    language: language,
+    software: software
+  });
 });
 
-// listen for requests :)
-var listener = app.listen(process.env.PORT || 3000, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server berjalan di port ${PORT}`);
 });
